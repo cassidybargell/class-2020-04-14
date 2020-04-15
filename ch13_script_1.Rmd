@@ -37,14 +37,31 @@ The data has been taken from the National Election Survey. Note that both ideolo
 
 Explore the data and see the variables for yourself. See if anything looks strange in the summary.
 
+```{r}
+skim(nes)
+```
+
+
 Create a scatterplot of our outcome variable `dvote` and a continuous predictor `income`. 
+
+```{r}
+ggplot(nes, aes(x = income, y = dvote)) + geom_jitter(alpha = 0.3, height = 0.4)
+```
+
 
 You might notice `geom_point()` doesn't give an intuitive graph since the points are so distinct. Try `geom_jitter()` instead. Use the arguments `alpha` and `height` to improve your plot.
 
 Draw a regression line through this jittered data using `geom_smooth()`.
 
+```{r}
+ggplot(nes, aes(x = income, y = dvote)) + geom_jitter(alpha = 0.3, height = 0.4) + 
+  geom_smooth(method = "lm")
+```
+
+
 Discuss whether a linear regression is appropriate for this. Is there a possibility of model predicting greater than 1 or less than 0 probability for `dvote`?
 
+- It is not appropriate because it can predict values outside of the reasonable range of dvote with a linear model. 
 
 # Scene 2
 
@@ -52,9 +69,27 @@ Discuss whether a linear regression is appropriate for this. Is there a possibil
 
 We first fit the logistic regression model using the `glm(y ~ x1 + x2, family, data)` function and save it as `model_1`.  
 
+```{r}
+model_1 <- glm(dvote ~ gender + income, family = binomial, data = nes)
+```
+
 We get the regression parameter estimates by applying the `tidy()` function from the broom package to `model_1`. Print the `term`, `estimate`, `conf.low`, and `conf.high` columns.  
 
+```{r}
+model_1 %>%
+  tidy(conf.int = TRUE) %>%
+  select(term, estimate, conf.low, conf.high)
+
+-.159/4
+
+```
+
+
 Interpret the `estimate` column for "gendermale" and "income". Use the [divide-by-four rule](https://davidkane9.github.io/PPBDS/13-classification.html#one-categorical-explanatory-variable).
+
+- divide by 4 rule gives you an upper bound on the effect of a one unit change of that variable.
+- Changing gender (male to female) would give you a `-.159/4 change in dvote. 
+- Changing income bracket by increase of 1, your probability of dvote would be changed by -.288/4. 
 
 Provide a Bayesian and a Frequentist interpretation of the confidence intervals for the estimate of the coefficient for `income`.
 
